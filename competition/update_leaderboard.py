@@ -1,13 +1,13 @@
 import pandas as pd
 import os
 import glob
+import subprocess # NEW: Required to talk to Git
 from sklearn.metrics import f1_score
 
 # CONFIG
 SUBMISSION_DIR = "submissions"
 TRUTH_FILE = "data/test_labels_hidden.csv"
 LEADERBOARD_CSV = "leaderboard/leaderboard.csv"
-# FIXED: Points to the root file so the README link works
 LEADERBOARD_MD = "LEADERBOARD.md"
 
 def main():
@@ -51,13 +51,32 @@ def main():
             if team_name.lower() in ['predictions', 'submission', 'my_submission']:
                 team_name = os.path.basename(os.path.dirname(file_path))
 
-            print(f"✅ Scored {team_name}: {score:.4f}") # Now we can see the score in logs!
+            print(f"✅ Scored {team_name}: {score:.4f}")
+
+            # ---------------------------------------------------------
+            # 🛑 NEW DATE LOGIC: Ask Git for the exact upload time
+            # ---------------------------------------------------------
+            enc_file = file_path + ".enc"
+            commit_date = ""
+
+            if os.path.exists(enc_file):
+                try:
+                    # Ask Git for the exact time this specific file was last committed
+                    cmd = f'git log -1 --format="%cd" --date=format:"%Y-%m-%d %H:%M" -- "{enc_file}"'
+                    commit_date = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
+                except Exception as e:
+                    print(f"⚠️ Could not get git date for {enc_file}: {e}")
+            
+            # Fallback to current time if Git fails or the file is brand new/uncommitted
+            if not commit_date:
+                commit_date = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M')
 
             results.append({
                 'team': team_name,
                 'score': score,
-                'date': pd.Timestamp.now().strftime('%Y-%m-%d %H:%M')
+                'date': commit_date
             })
+            # ---------------------------------------------------------
 
         except Exception as e:
             print(f"⚠️ Failed to process {file_path}: {e}")
@@ -94,7 +113,6 @@ def render_markdown(df):
     for _, row in df.iterrows():
         r = row['rank']
         medal = "🥇" if r == 1 else "🥈" if r == 2 else "🥉" if r == 3 else str(r)
-        # FIXED: Format score to 4 decimal places
         md += f"| {medal} | {row['team']} | {row['score']:.4f} | {row['date']} |\n"
         
     # Write to ROOT directory
