@@ -1,0 +1,59 @@
+name: Admin Leaderboard Refresh
+
+on:
+  workflow_dispatch: # 🎯 THIS is the magic line that creates the manual button!
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Crucial: Grabs the full Git time-travel history
+          
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install Dependencies
+        run: pip install pandas scikit-learn rsa
+        
+      - name: Restore Secret Answer Key
+        env:
+          TEST_LABELS: ${{ secrets.TEST_LABELS }}
+        run: |
+          echo "$TEST_LABELS" | base64 -d | gzip -d > data/test_labels_hidden.csv
+          
+      - name: Decrypt All Submissions
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        run: |
+          # Loop through every encrypted file and decrypt it using your updated decrypt.py
+          for file in submissions/*.enc; do
+            if [ -f "$file" ]; then
+              echo "🔓 Decrypting $file..."
+              python competition/decrypt.py "$file"
+            fi
+          done
+          
+      - name: Rebuild Leaderboard
+        run: |
+          echo "🚀 Running the time-travel leaderboard update..."
+          # Update this path if your script is in a different folder
+          python update_leaderboard.py 
+          
+      - name: Commit and Push Updates
+        run: |
+          # Configure the GitHub Actions bot to make the commit
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add LEADERBOARD.md leaderboard/leaderboard.csv
+          
+          # Only commit if there are actual changes to avoid failing the action
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Admin force-refresh leaderboard timestamps" && git push)
