@@ -185,4 +185,3 @@ Interactive web leaderboard that updates automatically whenever a new submission
 
 [🌐 View the Interactive THInC Leaderboard Here](https://emmakowu3579-ui.github.io/inductive-class-challenge/)
 
-*(Note: You can still view the raw data in the [leaderboard/leaderboard.csv](leaderboard/leaderboard.csv) file).*
