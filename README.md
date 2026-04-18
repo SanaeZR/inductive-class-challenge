@@ -179,4 +179,10 @@ If the submission is valid, the PR will be merged by an admin and 🎉 your name
 ---
 
 ## 🏆 Leaderboard
-[📈 View Leaderboard](LEADERBOARD.md)
+Normal table leaderboard: [📈 View Leaderboard](LEADERBOARD.md)
+
+Interactive web leaderboard that updates automatically whenever a new submission is graded!
+
+[🌐 View the Interactive THInC Leaderboard Here](https://emmakowu3579-ui.github.io/inductive-class-challenge/)
+
+*(Note: You can still view the raw data in the [leaderboard/leaderboard.csv](leaderboard/leaderboard.csv) file).*
