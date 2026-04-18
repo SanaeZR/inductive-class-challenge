@@ -23,6 +23,10 @@ Unlike standard transductive tasks (like Cora), the test nodes belong to **entir
 
 The data is derived from the [NuCLS dataset](https://nucls.grand-challenge.org/) (breast cancer).
 
+<img width="1799" height="692" alt="1800w" src="https://github.com/user-attachments/assets/68b847f7-af4c-4383-9e8b-a38d244c7a03" />
+
+
+
 ### 🏗️ Graph Construction Pipeline
 
 The graph was built using the following inductive pipeline to ensure biological realism:
