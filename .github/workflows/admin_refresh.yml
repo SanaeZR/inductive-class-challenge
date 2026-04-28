@@ -55,5 +55,14 @@ jobs:
           
           git add LEADERBOARD.md leaderboard/leaderboard.csv
           
-          # Only commit if there are actual changes to avoid failing the action
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Admin force-refresh leaderboard timestamps" && git push)
+          # Only proceed if there are actual changes staged
+          if ! git diff --staged --quiet; then
+            git commit -m "Admin force-refresh leaderboard timestamps"
+            
+            # 🔄 THE FIX: Pull any last-minute changes from GitHub before pushing!
+            git pull --rebase origin main
+            
+            git push
+          else
+            echo "No changes to commit. Everything is up to date!"
+          fi
